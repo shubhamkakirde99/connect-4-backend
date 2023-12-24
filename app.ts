@@ -6,11 +6,11 @@ import websockets from "./websockets";
 import dotenv from "dotenv";
 
 const APP_CONFIG = dotenv.config().parsed;
-console.log("config fetched: ", APP_CONFIG);
+console.log("config fetched: ", process.env);
 
 var jsonParser = bodyParser.json();
 
-const connectionString = `mongodb+srv://${APP_CONFIG?.MONGO_USERNAME}:${APP_CONFIG?.MONGO_PASSWORD}@cluster0.0tkabxq.mongodb.net/`;
+const connectionString = `mongodb+srv://${process.env?.MONGO_USERNAME}:${process.env?.MONGO_PASSWORD}@cluster0.0tkabxq.mongodb.net/`;
 
 let conn;
 let db: any;
