@@ -3,10 +3,6 @@ import { MongoClient } from "mongodb";
 import cors from "cors";
 import bodyParser from "body-parser";
 import websockets from "./websockets";
-import dotenv from "dotenv";
-
-const APP_CONFIG = dotenv.config().parsed;
-console.log("config fetched: ", process.env);
 
 var jsonParser = bodyParser.json();
 
