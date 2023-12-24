@@ -6,6 +6,7 @@ import websockets from "./websockets";
 import dotenv from "dotenv";
 
 const APP_CONFIG = dotenv.config().parsed;
+console.log("config fetched: ", APP_CONFIG);
 
 var jsonParser = bodyParser.json();
 
