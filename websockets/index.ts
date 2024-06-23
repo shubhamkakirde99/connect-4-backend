@@ -68,12 +68,12 @@ export default async (expressServer: any, db: any) => {
   };
 
   const handleClientDisconnect = async (
-    userName: string | null,
-    roomName: string | null
+    userName: string,
+    roomName: string,
   ) => {
     let result = await db.collection("active_games").findOne({ roomName });
     console.log("found doc: ", result);
-    const isP1 = result.p1 === userName ? true : false;
+    const isP1 = result.p1 === userName;
     if (
       (isP1 && result?.p2Active !== true) ||
       (!isP1 && result?.p1Active !== true)
@@ -83,8 +83,16 @@ export default async (expressServer: any, db: any) => {
       let updateQuery;
       if (isP1) {
         updateQuery = { $set: { p1Active: false } };
+        activeRooms[roomName]?.p2Data?.conn.send(JSON.stringify({
+          type: "opponent_disconnected",
+          payload: {}
+        }));
       } else {
         updateQuery = { $set: { p2Active: false } };
+        activeRooms[roomName]?.p1Data?.conn.send(JSON.stringify({
+          type: "opponent_disconnected",
+          payload: {}
+        }));
       }
       await db.collection("active_games").updateOne({ roomName }, updateQuery);
     }
@@ -207,10 +215,16 @@ export default async (expressServer: any, db: any) => {
       });
 
       websocketConnection.on("close", () => {
-        handleClientDisconnect(
-          connectionParams.get("userName"),
-          connectionParams.get("roomName")
-        );
+        const userName = connectionParams.get("userName");
+        const roomName = connectionParams.get("roomName");
+        if (userName && roomName) {
+          handleClientDisconnect(
+              userName,
+              roomName,
+          );
+        } else {
+          console.log(`Invalid disconnect parameters: ${userName}, ${roomName}`)
+        }
         console.log(`Client ${connectionParams} disconnected`);
       });
     }
