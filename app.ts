@@ -15,11 +15,13 @@ const app: Express = express();
 app.use(cors());
 const port = 3001;
 
-app.get("/", async (req: Request, res: Response) => {
-  let collection = await db.collection("active_players");
-  let results = await collection.find({}).limit(50).toArray();
+const healthData = {
+  dbConnected: false,
+  websocketsConnected: false,
+}
 
-  res.send(results).status(200);
+app.get("/health", async (req: Request, res: Response) => {
+  res.send(healthData).status(200);
 });
 
 app.get("/check-user/:userName", async (req: Request, res: Response) => {
@@ -40,22 +42,27 @@ app.get("/room-exists/:roomName", async (req: Request, res: Response) => {
   res.send(Boolean(results.length)).status(200);
 });
 
+
+const client = new MongoClient(connectionString);
+client.connect().then((connectionObject) => {
+  try {
+    db = connectionObject;
+    healthData.dbConnected = true;
+    console.info("[server] - Connected to the database");
+  } catch (e) {
+    console.error("[server] - Error connecting to database: ", e);
+  }
+});
+
+
 try {
-  const client = new MongoClient(connectionString);
-  client.connect().then((connectionObject) => {
-    try {
-      conn = connectionObject;
-      db = conn.db("connect-x");
-      const server = app.listen(port, () => {
-        console.log(
-          `⚡️[server]: Server is running at http://localhost:${port}`
-        );
-      });
-      websockets(server, db);
-    } catch (e) {
-      console.error("ERROR IS: ", e);
-    }
+  const server = app.listen(port, () => {
+    console.log(
+        `[server]: Server is running`
+    );
   });
+  websockets(server, db);
+  healthData.websocketsConnected = true;
 } catch (e) {
-  console.error("ERROR IS: ", e);
+  console.error("[server] - ERROR IS: ", e);
 }
