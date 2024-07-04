@@ -13,7 +13,7 @@ let db: any;
 const app: Express = express();
 app.use(cors());
 // const host = process.env.HOST || "localhost";
-const host = process.env?.DEPLOY_ENV === "local" ? "localhost" : "https://connect-4-backend-6rkt.onrender.com";
+const host = process.env?.DEPLOY_ENV === "local" ? "localhost" : "connect-4-backend-6rkt.onrender.com";
 const port = process?.env?.PORT || 3001;
 const protocol = host === "localhost" ? "http" : "https";
 const baseUrl = `${protocol}://${host}${host === "localhost" ? ":" + port : ""}`;
