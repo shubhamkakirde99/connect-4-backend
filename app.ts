@@ -3,6 +3,8 @@ import { MongoClient } from "mongodb";
 import cors from "cors";
 import bodyParser from "body-parser";
 import websockets from "./websockets";
+import cron from "node-cron";
+import axios from 'axios';
 
 var jsonParser = bodyParser.json();
 
@@ -13,9 +15,16 @@ let db: any;
 
 const app: Express = express();
 app.use(cors());
+const host = process.env.HOST || "localhost";
 const port = process?.env?.PORT || 3001;
+const protocol = host === "localhost" ? "http" : "https";
+const baseUrl = `${protocol}://${host}:${port}`;
+const uiUrl = host === "localhost" ? "http://localhost:3000" : "https://connect-4-ui.onrender.com/";
 
-console.info(`[server] - Server starting on port: ${process?.env?.PORT}`);
+console.info(`[server] - Server URL is: ${baseUrl}`);
+console.info(`[server] - UI URL is: ${uiUrl}`);
+console.info(`[server] - Server starting on port: ${port}`);
+
 
 const healthData = {
   dbConnected: false,
@@ -72,3 +81,21 @@ try {
 } catch (e) {
   console.error("[server] - ERROR IS: ", e);
 }
+
+
+cron.schedule("0 * * * *", () => {
+  console.log("[server] - running cron job");
+  axios.get(`${baseUrl}/health`)
+      .then((res) => {
+        console.log(`[server] - Cron health check status: ${res.status}`);
+      }).catch((err) => {
+    console.log(`[server] - Error on cron health check: ${err.message}`);
+  });
+
+  axios.get(uiUrl)
+      .then((res) => {
+        console.log(`[server] - Cron health UI check status: ${res.status}`);
+      }).catch((err) => {
+    console.log(`[server] - Error on cron UI check: ${err.message}`);
+  });
+});
