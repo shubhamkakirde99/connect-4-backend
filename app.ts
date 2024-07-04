@@ -16,7 +16,7 @@ app.use(cors());
 const host = process.env?.DEPLOY_ENV === "local" ? "localhost" : "https://connect-4-backend-6rkt.onrender.com";
 const port = process?.env?.PORT || 3001;
 const protocol = host === "localhost" ? "http" : "https";
-const baseUrl = `${protocol}://${host}:${port}`;
+const baseUrl = `${protocol}://${host}${host === "localhost" ? ":" + port : ""}`;
 const uiUrl = host === "localhost" ? "http://localhost:3000" : "https://connect-4-ui.onrender.com/";
 
 console.info(`[server] - Server URL is: ${baseUrl}`);
