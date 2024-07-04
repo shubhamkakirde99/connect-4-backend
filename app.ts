@@ -81,7 +81,7 @@ try {
 }
 
 
-cron.schedule("0 * * * *", () => {
+cron.schedule("*/1 * * * *", () => {
   console.log("[server] - running cron job");
   axios.get(`${baseUrl}/health`)
       .then((res) => {
