@@ -1,21 +1,19 @@
 import express, { Express, Request, Response } from "express";
 import { MongoClient } from "mongodb";
 import cors from "cors";
-import bodyParser from "body-parser";
 import websockets from "./websockets";
 import cron from "node-cron";
 import axios from 'axios';
-
-var jsonParser = bodyParser.json();
+import * as os from "os";
 
 const connectionString = `mongodb+srv://${process.env?.MONGO_USERNAME}:${process.env?.MONGO_PASSWORD}@cluster0.0tkabxq.mongodb.net/`;
 
-let conn;
 let db: any;
 
 const app: Express = express();
 app.use(cors());
-const host = process.env.HOST || "localhost";
+// const host = process.env.HOST || "localhost";
+const host = os.hostname();
 const port = process?.env?.PORT || 3001;
 const protocol = host === "localhost" ? "http" : "https";
 const baseUrl = `${protocol}://${host}:${port}`;

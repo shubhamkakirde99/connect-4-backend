@@ -1,6 +1,7 @@
 import WebSocket from "ws";
 
 import { ROWS, COLS, handlePlayMove } from "../game_utils";
+import {MongoClient} from "mongodb";
 
 type PlayerData = {
   name: string;
