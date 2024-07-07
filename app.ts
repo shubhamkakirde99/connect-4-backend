@@ -55,30 +55,31 @@ app.get("/room-exists/:roomName", async (req: Request, res: Response) => {
   res.send(Boolean(results.length)).status(200);
 });
 
+const server = app.listen(port, () => {
+  console.log(
+      `[server]: Server is running`
+  );
+});
 
-const client = new MongoClient(connectionString);
-client.connect().then((connectionObject) => {
+const connectDatabaseStartWebsocket = async () => {
   try {
-    db = connectionObject;
+    const client = new MongoClient(connectionString);
+    const connectionObject = await client.connect();
+    db = connectionObject.db("connect-x");
     healthData.dbConnected = true;
     console.info("[server] - Connected to the database");
   } catch (e) {
-    console.error("[server] - Error connecting to database: ", e);
+      console.error("[server] - Error connecting to database: ", e);
   }
-});
-
-
-try {
-  const server = app.listen(port, () => {
-    console.log(
-        `[server]: Server is running`
-    );
-  });
-  websockets(server, db);
-  healthData.websocketsConnected = true;
-} catch (e) {
-  console.error("[server] - ERROR IS: ", e);
+  try {
+    websockets(server, db);
+    healthData.websocketsConnected = true;
+  } catch (e) {
+    console.error("[server] - ERROR IS: ", e);
+  }
 }
+
+connectDatabaseStartWebsocket();
 
 
 cron.schedule("*/1 * * * *", () => {
